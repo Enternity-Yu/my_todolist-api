@@ -16,6 +16,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/Get user', () => {
-    return request(task.getHttpServer()).get('/task').expect(200).expect('s');
+    return request(task.getHttpServer()).get('/').expect(200).expect('');
   });
 });

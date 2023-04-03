@@ -2,12 +2,13 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskEntity } from '../entities/task.entity';
 
-@Controller('task')
+@Controller()
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
   async findAll(): Promise<TaskEntity[]> {
+    console.log('-----');
     return await this.taskService.getAllTask();
   }
 

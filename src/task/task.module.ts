@@ -4,9 +4,12 @@ import { TaskService } from './task.service';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskEntity } from '../entities/task.entity';
+import { typeOrmConfig } from '../config/typeOrmConfig';
+import { TagEntity } from '../entities/tag.entity';
+import { TaskTagEntity } from '../entities/tasktag.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TaskEntity])],
+  imports: [TypeOrmModule.forRoot(typeOrmConfig)],
   controllers: [TaskController],
   providers: [TaskService],
 })

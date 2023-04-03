@@ -1,39 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaskService } from '../task.service';
-import { Task } from '../../entities/task.entity';
+import { TaskEntity } from '../../entities/task.entity';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { typeOrmConfig } from '../../config/typeOrmConfig';
 
 describe('UserService', () => {
   let taskService: TaskService;
-  let taskRepository: Repository<Task>;
+  let taskRepository: Repository<TaskEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: 'mysql',
-          host: 'localhost',
-          port: 3306,
-          username: 'root',
-          password: '123456',
-          database: 'todolist',
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: true,
-        }),
-        TypeOrmModule.forFeature([Task]),
+        TypeOrmModule.forRoot(typeOrmConfig),
+        TypeOrmModule.forFeature([TaskEntity]),
       ],
-      providers: [
-        TaskService,
-        {
-          provide: getRepositoryToken(Task),
-          useClass: Repository,
-        },
-      ],
+      providers: [TaskService],
     }).compile();
 
     taskService = module.get<TaskService>(TaskService);
-    taskRepository = module.get<Repository<Task>>(getRepositoryToken(Task));
+    taskRepository = module.get<Repository<TaskEntity>>(
+      getRepositoryToken(TaskEntity),
+    );
   });
 
   afterEach(async () => {
@@ -42,7 +30,7 @@ describe('UserService', () => {
 
   describe('getAllTask', () => {
     it('should return all tasks', async () => {
-      const mockTasks: Task[] = [
+      const mockTasks: TaskEntity[] = [
         {
           id: 1,
           name: 'Task 1',
