@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'tasks' })
 export class TaskEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,5 +9,8 @@ export class TaskEntity {
   name: string;
 
   @Column()
+  tags: string;
+
+  @Column({ name: 'is_finished', default: false })
   isFinished: boolean;
 }

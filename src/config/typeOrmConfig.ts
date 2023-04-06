@@ -1,7 +1,5 @@
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { TaskEntity } from '../entities/task.entity';
-import { TagEntity } from '../entities/tag.entity';
-import { TaskTagEntity } from '../entities/tasktag.entity';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
@@ -10,6 +8,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: 'root',
   password: '123456',
   database: 'todolist',
-  entities: [TaskEntity, TagEntity, TaskTagEntity],
+  entities: [TaskEntity],
   synchronize: true,
 };

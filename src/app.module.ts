@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { Connection } from 'typeorm';
 import { TaskModule } from './task/task.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './config/typeOrmConfig';
 
 @Module({
-  imports: [TaskModule],
+  imports: [TypeOrmModule.forRoot(typeOrmConfig), TaskModule],
 })
-export class AppModule {
-  constructor(private readonly connection: Connection) {}
-}
+export class AppModule {}
