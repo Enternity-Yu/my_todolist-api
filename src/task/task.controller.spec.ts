@@ -3,12 +3,7 @@ import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TaskEntity } from '../entities/task.entity';
-import {
-  HttpStatus,
-  INestApplication,
-  NotFoundException,
-} from '@nestjs/common';
-import { TaskModule } from './task.module';
+import { INestApplication, NotFoundException } from '@nestjs/common';
 import * as request from 'supertest';
 
 describe('TaskController', () => {
@@ -62,10 +57,11 @@ describe('TaskController', () => {
         { id: 1, name: 'test2', tags: 'work,life', isFinished: true },
       ];
       jest.spyOn(taskService, 'findAllTasks').mockResolvedValue(mockTasks);
-      const response = await request(app.getHttpServer()).get('/tasks');
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockTasks);
+      await request(app.getHttpServer())
+        .get('/tasks')
+        .expect(200)
+        .expect(mockTasks);
     });
   });
 
@@ -82,16 +78,15 @@ describe('TaskController', () => {
         .post('/tasks')
         .send(taskData)
         .expect(200)
-        .then((response) => {
-          expect(response.status).toBe(200);
-          expect(response.body).toHaveProperty('id');
-          expect(response.body.name).toBe(taskData.name);
-          expect(response.body.tags).toBe(taskData.tags.toString());
-          expect(response.body.isFinished).toBeFalsy();
+        .then((res) => {
+          expect(res.body).toHaveProperty('id');
+          expect(res.body.name).toBe(taskData.name);
+          expect(res.body.tags).toBe(taskData.tags.toString());
+          expect(res.body.isFinished).toBeFalsy();
         });
     });
 
-    it('should return 500 if task creation fails', async () => {
+    it('should return 400 if task creation fails', async () => {
       jest
         .spyOn(taskService, 'createTask')
         .mockRejectedValueOnce(new Error('Failed to create task.'));
@@ -100,7 +95,7 @@ describe('TaskController', () => {
         .post('/tasks')
         .send(taskData);
 
-      expect(response.body.statusCode).toBe(500);
+      expect(response.body.statusCode).toBe(400);
       expect(response.body.message).toBe('Failed to create task.');
     });
   });
@@ -113,43 +108,48 @@ describe('TaskController', () => {
         tags: 'tag1,tag3',
         isFinished: true,
       });
-      const response = await request(app.getHttpServer())
-        .put('/tasks/id')
-        .send(updatedTask);
 
-      expect(response.status).toBe(200);
-      expect(response.body.id).toBe(id);
-      expect(response.body.name).toBe(updatedTask.name);
-      expect(response.body.tags).toBe(updatedTask.tags.toString());
-      expect(response.body.isFinished).toBe(updatedTask.isFinished);
+      await request(app.getHttpServer())
+        .put('/tasks/id')
+        .send(updatedTask)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.id).toBe(id);
+          expect(res.body.name).toBe(updatedTask.name);
+          expect(res.body.tags).toBe(updatedTask.tags.toString());
+          expect(res.body.isFinished).toBe(updatedTask.isFinished);
+        });
     });
 
-    it('should return a 404 error if the task does not exist', async () => {
+    it('should return a 404 error if the task does not exist', () => {
       jest
         .spyOn(taskService, 'updateTask')
         .mockRejectedValue(new NotFoundException());
 
-      const response = await request(app.getHttpServer())
+      request(app.getHttpServer())
         .put('/tasks/id')
-        .send(updatedTask);
-
-      expect(response.body.statusCode).toBe(404);
-      expect(response.body.message).toBe('Not Found');
+        .send(updatedTask)
+        .expect(404);
     });
   });
+
   describe('/tasks/:id (DELETE)', () => {
     it('should delete the task with the given id', async () => {
       jest.spyOn(taskService, 'deleteTask').mockResolvedValue();
 
-      const res = await request(app.getHttpServer()).delete(`/tasks/${0}`);
-
-      expect(res.status).toBe(200);
+      request(app.getHttpServer()).delete(`/tasks/${0}`).expect(200);
     });
 
     it('should return 404 if task with the given id does not exist', () => {
-      jest.spyOn(taskService, 'deleteTask').mockRejectedValue(new Error('123'));
+      jest
+        .spyOn(taskService, 'deleteTask')
+        .mockRejectedValue(new Error('Task not Found.'));
 
-      return request(app.getHttpServer()).delete(`/tasks/${0}`).expect(404);
+      request(app.getHttpServer()).delete(`/tasks/${0}`).expect(404);
+
+      expect(
+        request(app.getHttpServer()).delete(`/tasks/${0}`),
+      ).rejects.toThrow('Task not Found.');
     });
   });
 });

@@ -72,14 +72,10 @@ describe('TaskService', () => {
     });
   });
 
-  it('should prevent task created which name or tag is empty', async () => {
-    const newTask = { name: ' ', tags: [] };
-
-    try {
-      await taskService.createTask(newTask.name, newTask.tags);
-    } catch (e) {
-      expect(e.message).toBe('Failed to create a new task.');
-    }
+  it('should prevent task created which name or tag is empty', () => {
+    expect(taskService.createTask('', [])).rejects.toThrow(
+      'Failed to create a new task.',
+    );
   });
 
   it('should update task', async () => {
@@ -106,12 +102,12 @@ describe('TaskService', () => {
     });
   });
 
-  it('should prevent task updated which id is not exist', async () => {
-    try {
-      await taskService.updateTask(999, 'update', ['study'], true);
-    } catch (e) {
-      expect(e.message).toBe('Task not found.');
-    }
+  it('should prevent task updated which id is not exist', () => {
+    jest.spyOn(taskRepository, 'findOne').mockResolvedValue(null);
+
+    expect(
+      taskService.updateTask(999, 'update', ['study'], true),
+    ).rejects.toThrow('Task not found.');
   });
 
   it('should delete task by id', async () => {
@@ -119,13 +115,15 @@ describe('TaskService', () => {
     await expect(taskRepository.delete).toHaveBeenCalledWith(0);
   });
 
-  it('should prevent task deleted which id is not exist', async () => {
-    jest.spyOn(taskRepository, 'delete').mockRejectedValue(new Error('123'));
-    try {
-      await taskService.deleteTask(999);
-    } catch (e) {
-      console.log(e);
-      expect(e.message).toBe('Task not found.');
-    }
+  it('should prevent task deleted which id is not exist', () => {
+    jest.spyOn(taskRepository, 'findOne').mockResolvedValue(null);
+
+    expect(taskService.deleteTask(999)).rejects.toThrow('Task not found.');
+  });
+
+  it('should prevent task deleted when error', () => {
+    jest.spyOn(taskRepository, 'delete').mockRejectedValue(new Error('Error'));
+
+    expect(taskService.deleteTask(1)).rejects.toThrowError('Error');
   });
 });

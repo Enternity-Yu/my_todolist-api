@@ -46,16 +46,7 @@ export class TaskController {
     try {
       return await this.taskService.createTask(taskData.name, taskData.tags);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: number) {
-    try {
-      return await this.taskService.deleteTask(id);
-    } catch (error) {
-      throw new NotFoundException();
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -73,7 +64,17 @@ export class TaskController {
         taskData.isFinished,
       );
     } catch (error) {
-      return new HttpException({}, error.code);
+      throw error;
+    }
+  }
+
+  @Delete(':id')
+  @HttpCode(200)
+  async delete(@Param('id') id: number) {
+    try {
+      return await this.taskService.deleteTask(id);
+    } catch (error) {
+      throw error;
     }
   }
 }
