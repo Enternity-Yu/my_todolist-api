@@ -78,11 +78,11 @@ describe('TaskController', () => {
         .post('/tasks')
         .send(taskData)
         .expect(200)
-        .then((res) => {
-          expect(res.body).toHaveProperty('id');
-          expect(res.body.name).toBe(taskData.name);
-          expect(res.body.tags).toBe(taskData.tags.toString());
-          expect(res.body.isFinished).toBeFalsy();
+        .then((resp) => {
+          expect(resp.body).toHaveProperty('id');
+          expect(resp.body.name).toBe(taskData.name);
+          expect(resp.body.tags).toBe(taskData.tags.toString());
+          expect(resp.body.isFinished).toBeFalsy();
         });
     });
 
@@ -113,11 +113,11 @@ describe('TaskController', () => {
         .put('/tasks/id')
         .send(updatedTask)
         .expect(200)
-        .then((res) => {
-          expect(res.body.id).toBe(id);
-          expect(res.body.name).toBe(updatedTask.name);
-          expect(res.body.tags).toBe(updatedTask.tags.toString());
-          expect(res.body.isFinished).toBe(updatedTask.isFinished);
+        .then((resp) => {
+          expect(resp.body.id).toBe(id);
+          expect(resp.body.name).toBe(updatedTask.name);
+          expect(resp.body.tags).toBe(updatedTask.tags.toString());
+          expect(resp.body.isFinished).toBe(updatedTask.isFinished);
         });
     });
 

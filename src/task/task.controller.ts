@@ -6,11 +6,9 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
-  Res,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskEntity } from '../entities/task.entity';
@@ -25,16 +23,7 @@ export class TaskController {
     try {
       return await this.taskService.findAllTasks();
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: error.message,
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: error,
-        },
-      );
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -64,7 +53,7 @@ export class TaskController {
         taskData.isFinished,
       );
     } catch (error) {
-      throw error;
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -74,7 +63,7 @@ export class TaskController {
     try {
       return await this.taskService.deleteTask(id);
     } catch (error) {
-      throw error;
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 }
