@@ -37,7 +37,7 @@ describe('TaskService', () => {
       .spyOn(taskRepository, 'save')
       .mockImplementation(
         (task: TaskEntity): Promise<TaskEntity> => Promise.resolve(task),
-      ); // mock return id
+      );
     jest
       .spyOn(taskRepository, 'find')
       .mockImplementation(async () => mockTasks);
@@ -50,6 +50,14 @@ describe('TaskService', () => {
   });
 
   afterEach(async () => clearAllMocks());
+
+  it('should find all tasks', async () => {
+    const tasks = await taskService.findAllTasks();
+
+    expect(taskRepository.find).toHaveBeenCalledTimes(1);
+    expect(tasks).toHaveLength(2);
+    expect(tasks).toEqual(mockTasks);
+  });
 
   it('should create task successfully', async () => {
     const newTask = { name: 'new task', tags: ['life'] };
@@ -70,16 +78,8 @@ describe('TaskService', () => {
     try {
       await taskService.createTask(newTask.name, newTask.tags);
     } catch (e) {
-      expect(e.message).toBe('Name or tags is empty.');
+      expect(e.message).toBe('Failed to create a new task.');
     }
-  });
-
-  it('should find all tasks', async () => {
-    const tasks = await taskService.findAllTasks();
-
-    expect(taskRepository.find).toHaveBeenCalledTimes(1);
-    expect(tasks).toHaveLength(2);
-    expect(tasks).toEqual(mockTasks);
   });
 
   it('should update task', async () => {
@@ -108,9 +108,9 @@ describe('TaskService', () => {
 
   it('should prevent task updated which id is not exist', async () => {
     try {
-      await taskService.updateTask(10, 'update', ['study'], true);
+      await taskService.updateTask(999, 'update', ['study'], true);
     } catch (e) {
-      expect(e.message).toBe('Task id is not exist.');
+      expect(e.message).toBe('Task not found.');
     }
   });
 
@@ -120,10 +120,12 @@ describe('TaskService', () => {
   });
 
   it('should prevent task deleted which id is not exist', async () => {
+    jest.spyOn(taskRepository, 'delete').mockRejectedValue(new Error('123'));
     try {
-      await taskService.deleteTask(10);
+      await taskService.deleteTask(999);
     } catch (e) {
-      expect(e.message).toBe('Task id is not exist.');
+      console.log(e);
+      expect(e.message).toBe('Task not found.');
     }
   });
 });

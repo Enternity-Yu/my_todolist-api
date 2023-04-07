@@ -15,7 +15,7 @@ export class TaskService {
   }
 
   async createTask(name: string, tags: string[]): Promise<TaskEntity> {
-    if (!name || !tags.length) throw new Error('Name or tags is empty.');
+    if (!name || !tags.length) throw new Error('Failed to create a new task.');
 
     const task = new TaskEntity();
     task.name = name;
@@ -38,7 +38,7 @@ export class TaskService {
       result.isFinished = isFinished;
       return await this.taskRepository.save(result);
     } else {
-      throw new Error('Task id is not exist.');
+      throw new Error('Task not found.');
     }
   }
 
@@ -48,7 +48,7 @@ export class TaskService {
     if (result) {
       await this.taskRepository.delete(id);
     } else {
-      throw new Error('Task id is not exist.');
+      throw new Error('Task not found.');
     }
   }
 }

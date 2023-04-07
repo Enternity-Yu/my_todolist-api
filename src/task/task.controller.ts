@@ -28,7 +28,7 @@ export class TaskController {
       throw new HttpException(
         {
           status: HttpStatus.FORBIDDEN,
-          error: error.message(),
+          error: error.message,
         },
         HttpStatus.FORBIDDEN,
         {
@@ -51,12 +51,11 @@ export class TaskController {
   }
 
   @Delete(':id')
-  @HttpCode(200)
   async delete(@Param('id') id: number) {
     try {
       return await this.taskService.deleteTask(id);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new NotFoundException();
     }
   }
 
@@ -74,7 +73,7 @@ export class TaskController {
         taskData.isFinished,
       );
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new HttpException({}, error.code);
     }
   }
 }
